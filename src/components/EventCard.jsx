@@ -1,3 +1,5 @@
+import { Link } from 'react-router';
+
 function formatDate(localDate) {
   if (!localDate) return 'Date to be announced';
 
@@ -37,6 +39,9 @@ export default function EventCard({ event }) {
         </p>
         <p>{venue?.name || 'Venue to be announced'}</p>
         {location && <p>{location}</p>}
+        <Link className="event-details-link" to={`/events/${encodeURIComponent(event.id)}`}>
+          View details
+        </Link>
       </div>
     </article>
   );

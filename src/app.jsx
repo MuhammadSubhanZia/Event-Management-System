@@ -3,6 +3,7 @@ import { Link, Route, Routes, useNavigate } from 'react-router';
 import AuthPage from './pages/AuthPage';
 import EventsPage from './pages/EventsPage';
 import { clearCurrentUser } from './store/authSlice';
+import EventDetailsPage from './pages/EventDetailsPage';
 
 function Home() {
   const currentUser = useSelector((state) => state.auth.currentUser);
@@ -72,6 +73,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/events" element={<EventsPage />} />
+          <Route path="/events/:eventId" element={<EventDetailsPage />} />
           <Route path="/login" element={<AuthPage key="login" mode="login" />} />
           <Route path="/register" element={<AuthPage key="register" mode="register" />} />
           <Route path="*" element={<NotFound />} />
