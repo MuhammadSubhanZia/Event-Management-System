@@ -542,3 +542,60 @@ h1 {
   border-radius: 12px;
   background: #fff;
 }
+
+.registration-box {
+  max-width: 760px;
+  margin: 28px 0;
+  padding: 22px;
+  border: 1px solid #d9e1f2;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.registration-box h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+}
+
+.registration-box p {
+  line-height: 1.5;
+}
+
+.registration-box a {
+  color: #304db7;
+  font-weight: 700;
+}
+
+.register-button,
+.cancel-button {
+  padding: 11px 17px;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.register-button {
+  border: 0;
+  background: #405fd0;
+  color: #fff;
+}
+
+.register-button:hover {
+  background: #304db7;
+}
+
+.cancel-button {
+  border: 1px solid #a51d2d;
+  background: #fff;
+  color: #a51d2d;
+}
+
+.cancel-button:hover {
+  background: #fff1f2;
+}
+
+.registration-message {
+  color: #236b44;
+  font-weight: 700;
+}
