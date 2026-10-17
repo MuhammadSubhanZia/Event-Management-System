@@ -1,9 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { readSession } from '../utils/authStorage';
 
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    currentUser: null,
+    currentUser: readSession(),
   },
   reducers: {
     setCurrentUser(state, action) {
