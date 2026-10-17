@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, Route, Routes, useNavigate } from 'react-router';
 import AuthPage from './pages/AuthPage';
+import EventsPage from './pages/EventsPage';
 import { clearCurrentUser } from './store/authSlice';
 
 function Home() {
@@ -16,6 +17,7 @@ function Home() {
       <p className="welcome">
         Welcome, {currentUser ? currentUser.name : 'guest'}.
       </p>
+      <Link className="hero-link" to="/events">Browse events</Link>
     </section>
   );
 }
@@ -48,6 +50,7 @@ export default function App() {
 
           <nav className="nav-links" aria-label="Main navigation">
             <Link to="/">Home</Link>
+            <Link to="/events">Events</Link>
             {currentUser ? (
               <>
                 <span className="nav-user">Hi, {currentUser.name}</span>
@@ -68,6 +71,7 @@ export default function App() {
       <main className="container">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/events" element={<EventsPage />} />
           <Route path="/login" element={<AuthPage key="login" mode="login" />} />
           <Route path="/register" element={<AuthPage key="register" mode="register" />} />
           <Route path="*" element={<NotFound />} />
