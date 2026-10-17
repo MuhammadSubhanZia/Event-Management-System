@@ -1,5 +1,7 @@
-import { Link, Route, Routes } from 'react-router';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, Route, Routes, useNavigate } from 'react-router';
+import AuthPage from './pages/AuthPage';
+import { clearCurrentUser } from './store/authSlice';
 
 function Home() {
   const currentUser = useSelector((state) => state.auth.currentUser);
@@ -29,13 +31,36 @@ function NotFound() {
 }
 
 export default function App() {
+  const currentUser = useSelector((state) => state.auth.currentUser);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    dispatch(clearCurrentUser());
+    navigate('/');
+  }
+
   return (
     <div className="site">
       <header className="site-header">
         <div className="container header-content">
           <Link className="brand" to="/">Event Management</Link>
-          <nav aria-label="Main navigation">
+
+          <nav className="nav-links" aria-label="Main navigation">
             <Link to="/">Home</Link>
+            {currentUser ? (
+              <>
+                <span className="nav-user">Hi, {currentUser.name}</span>
+                <button className="nav-button" type="button" onClick={handleLogout}>
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login">Login</Link>
+                <Link to="/register">Register</Link>
+              </>
+            )}
           </nav>
         </div>
       </header>
@@ -43,6 +68,8 @@ export default function App() {
       <main className="container">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<AuthPage key="login" mode="login" />} />
+          <Route path="/register" element={<AuthPage key="register" mode="register" />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
