@@ -44,3 +44,36 @@ export async function searchEvents({ keyword, city, category, page }, signal) {
     totalElements: data.page?.totalElements ?? 0,
   };
 }
+
+export async function getEventById(eventId, signal) {
+  const apiKey = import.meta.env.VITE_TICKETMASTER_API_KEY?.trim();
+
+  if (!apiKey || apiKey === 'replace_with_your_api_key') {
+    throw new Error('Add your Ticketmaster API key to the .env file.');
+  }
+
+  const url = new URL(
+    `https://app.ticketmaster.com/discovery/v2/events/${encodeURIComponent(eventId)}.json`
+  );
+  url.searchParams.set('apikey', apiKey);
+
+  const response = await fetch(url, { signal });
+
+  if (response.status === 404) {
+    throw new Error('This event could not be found.');
+  }
+
+  if (response.status === 401) {
+    throw new Error('Ticketmaster rejected the API key.');
+  }
+
+  if (response.status === 429) {
+    throw new Error('Too many requests. Wait a moment and try again.');
+  }
+
+  if (!response.ok) {
+    throw new Error(`Could not load event details (HTTP ${response.status}).`);
+  }
+
+  return response.json();
+}
