@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useLocation, useParams } from 'react-router';
 import { getEventById } from '../services/ticketmaster';
+import { cancelRegistration, registerEvent } from '../store/registrationsSlice';
+import { isEventCompleted } from '../utils/eventDate';
 
 function formatDate(localDate) {
   if (!localDate) return 'Date to be announced';
@@ -15,9 +18,22 @@ function formatDate(localDate) {
 
 export default function EventDetailsPage() {
   const { eventId } = useParams();
+  const location = useLocation();
+  const dispatch = useDispatch();
+
+  const currentUser = useSelector((state) => state.auth.currentUser);
+  const isRegistered = useSelector((state) => {
+    if (!currentUser) return false;
+
+    return (state.registrations.byUser[currentUser.id] || []).some(
+      (item) => item.eventId === eventId
+    );
+  });
+
   const [event, setEvent] = useState(null);
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
@@ -25,6 +41,7 @@ export default function EventDetailsPage() {
 
     setStatus('loading');
     setError('');
+    setMessage('');
     setEvent(null);
 
     getEventById(eventId, controller.signal)
@@ -67,7 +84,7 @@ export default function EventDetailsPage() {
       ?.url ?? event.images?.[0]?.url;
 
   const venue = event._embedded?.venues?.[0];
-  const location = [
+  const locationText = [
     venue?.address?.line1,
     venue?.city?.name,
     venue?.state?.name,
@@ -81,6 +98,37 @@ export default function EventDetailsPage() {
   const category = classification?.segment?.name || 'Not specified';
   const genre = classification?.genre?.name;
   const price = event.priceRanges?.[0];
+  const completed = isEventCompleted(event);
+  const cancelled = event.dates?.status?.code === 'cancelled';
+
+  function handleRegister() {
+    if (!currentUser || isRegistered || completed || cancelled) return;
+
+    const registration = {
+      eventId: event.id,
+      name: event.name,
+      dateTime: event.dates?.start?.dateTime || null,
+      localDate: event.dates?.start?.localDate || null,
+      localTime: event.dates?.start?.localTime || null,
+      venue: venue?.name || 'Venue to be announced',
+      location: [venue?.city?.name, venue?.country?.name]
+        .filter(Boolean)
+        .join(', '),
+      category,
+      image: image || null,
+      registeredAt: new Date().toISOString(),
+    };
+
+    dispatch(registerEvent({ userId: currentUser.id, registration }));
+    setMessage('Event added to your registrations.');
+  }
+
+  function handleCancel() {
+    if (!currentUser || !isRegistered || completed) return;
+
+    dispatch(cancelRegistration({ userId: currentUser.id, eventId: event.id }));
+    setMessage('Your registration was cancelled.');
+  }
 
   return (
     <article className="event-details">
@@ -112,7 +160,7 @@ export default function EventDetailsPage() {
           <section className="details-panel">
             <h2>Where</h2>
             <p>{venue?.name || 'Venue to be announced'}</p>
-            {location && <p>{location}</p>}
+            {locationText && <p>{locationText}</p>}
           </section>
 
           <section className="details-panel">
@@ -124,6 +172,44 @@ export default function EventDetailsPage() {
             )}
           </section>
         </div>
+
+        <section className="registration-box" aria-label="Event registration">
+          <h2>Your registration</h2>
+
+          {!currentUser ? (
+            <p>
+              <Link to="/login" state={{ from: location.pathname }}>
+                Log in
+              </Link>{' '}
+              to register for this event.
+            </p>
+          ) : isRegistered ? (
+            <>
+              <p>You are registered for this event.</p>
+              {!completed && (
+                <button
+                  className="cancel-button"
+                  type="button"
+                  onClick={handleCancel}
+                >
+                  Cancel registration
+                </button>
+              )}
+            </>
+          ) : completed || cancelled ? (
+            <p>Registration is unavailable for this event.</p>
+          ) : (
+            <button
+              className="register-button"
+              type="button"
+              onClick={handleRegister}
+            >
+              Register for event
+            </button>
+          )}
+
+          {message && <p className="registration-message" role="status">{message}</p>}
+        </section>
 
         {price?.min != null && (
           <p className="details-price">

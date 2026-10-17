@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, Navigate, useNavigate } from 'react-router';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router';
 import { setCurrentUser } from '../store/authSlice';
 import { loginUser, registerUser } from '../utils/authStorage';
 
@@ -9,6 +9,8 @@ export default function AuthPage({ mode }) {
   const currentUser = useSelector((state) => state.auth.currentUser);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = location.state?.from || '/';
 
   const [form, setForm] = useState({
     name: '',
@@ -20,7 +22,7 @@ export default function AuthPage({ mode }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (currentUser) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={returnTo} replace />;
   }
 
   function updateField(event) {
@@ -61,7 +63,7 @@ export default function AuthPage({ mode }) {
         : await loginUser(form);
 
       dispatch(setCurrentUser(user));
-      navigate('/', { replace: true });
+      navigate(returnTo, { replace: true });
     } catch (problem) {
       setError(problem.message || 'Something went wrong. Please try again.');
     } finally {
@@ -146,7 +148,8 @@ export default function AuthPage({ mode }) {
 
       <p className="auth-switch">
         {isRegister ? 'Already have an account?' : 'New here?'}{' '}
-        <Link to={isRegister ? '/login' : '/register'}>
+        <Link to={isRegister ? '/login' : '/register'}
+          state={location.state}>
           {isRegister ? 'Log in' : 'Create an account'}
         </Link>
       </p>
