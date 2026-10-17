@@ -16,12 +16,6 @@ A React application for exploring events and managing event registrations.
 
 Run `npm run build` to check the production build.
 
-## API key
-
-When the Ticketmaster feature is added, copy `.env.example` to `.env`
-and replace its placeholder with your own API key. The `.env` file is
-excluded from Git.
-
 ## Stack
 
 React, Redux Toolkit, React Router, and Vite.
