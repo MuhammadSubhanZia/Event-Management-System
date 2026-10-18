@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router';
 import { cancelRegistration } from '../store/registrationsSlice';
 import { isEventCompleted } from '../utils/eventDate';
+const EMPTY_REGISTRATIONS = [];
 
 function formatDate(localDate) {
   if (!localDate) return 'Date to be announced';
@@ -68,8 +69,9 @@ export default function MyEventsPage() {
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.auth.currentUser);
   const registrations = useSelector(
-    (state) => state.registrations.byUser[currentUser?.id] || []
-  );
+    (state) =>
+    state.registrations.byUser[currentUser?.id] || EMPTY_REGISTRATIONS
+);
   const [message, setMessage] = useState('');
 
   const upcoming = registrations
