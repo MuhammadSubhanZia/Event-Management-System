@@ -4,6 +4,8 @@ import AuthPage from './pages/AuthPage';
 import EventsPage from './pages/EventsPage';
 import { clearCurrentUser } from './store/authSlice';
 import EventDetailsPage from './pages/EventDetailsPage';
+import MyEventsPage from './pages/MyEventsPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function Home() {
   const currentUser = useSelector((state) => state.auth.currentUser);
@@ -54,6 +56,7 @@ export default function App() {
             <Link to="/events">Events</Link>
             {currentUser ? (
               <>
+                <Link to="/my-events">My Events</Link>
                 <span className="nav-user">Hi, {currentUser.name}</span>
                 <button className="nav-button" type="button" onClick={handleLogout}>
                   Logout
@@ -74,6 +77,9 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/events/:eventId" element={<EventDetailsPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/my-events" element={<MyEventsPage />} />
+          </Route>
           <Route path="/login" element={<AuthPage key="login" mode="login" />} />
           <Route path="/register" element={<AuthPage key="register" mode="register" />} />
           <Route path="*" element={<NotFound />} />
