@@ -1,11 +1,15 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, Route, Routes, useNavigate } from 'react-router';
+import { Link, NavLink, Route, Routes, useNavigate } from 'react-router';
 import AuthPage from './pages/AuthPage';
-import EventsPage from './pages/EventsPage';
-import { clearCurrentUser } from './store/authSlice';
 import EventDetailsPage from './pages/EventDetailsPage';
+import EventsPage from './pages/EventsPage';
 import MyEventsPage from './pages/MyEventsPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import { clearCurrentUser } from './store/authSlice';
+
+function navClass({ isActive }) {
+  return isActive ? 'nav-active' : undefined;
+}
 
 function Home() {
   const currentUser = useSelector((state) => state.auth.currentUser);
@@ -20,7 +24,13 @@ function Home() {
       <p className="welcome">
         Welcome, {currentUser ? currentUser.name : 'guest'}.
       </p>
-      <Link className="hero-link" to="/events">Browse events</Link>
+
+      <div className="hero-actions">
+        <Link className="hero-link" to="/events">Browse events</Link>
+        {currentUser && (
+          <Link className="secondary-link" to="/my-events">My Events</Link>
+        )}
+      </div>
     </section>
   );
 }
@@ -47,32 +57,41 @@ export default function App() {
 
   return (
     <div className="site">
+      <a className="skip-link" href="#main-content">Skip to content</a>
+
       <header className="site-header">
         <div className="container header-content">
           <Link className="brand" to="/">Event Management</Link>
 
           <nav className="nav-links" aria-label="Main navigation">
-            <Link to="/">Home</Link>
-            <Link to="/events">Events</Link>
+            <NavLink to="/" end className={navClass}>Home</NavLink>
+            <NavLink to="/events" className={navClass}>Events</NavLink>
+
             {currentUser ? (
               <>
-                <Link to="/my-events">My Events</Link>
+                <NavLink to="/my-events" className={navClass}>
+                  My Events
+                </NavLink>
                 <span className="nav-user">Hi, {currentUser.name}</span>
-                <button className="nav-button" type="button" onClick={handleLogout}>
+                <button
+                  className="nav-button"
+                  type="button"
+                  onClick={handleLogout}
+                >
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link to="/login">Login</Link>
-                <Link to="/register">Register</Link>
+                <NavLink to="/login" className={navClass}>Login</NavLink>
+                <NavLink to="/register" className={navClass}>Register</NavLink>
               </>
             )}
           </nav>
         </div>
       </header>
 
-      <main className="container">
+      <main id="main-content" className="container">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/events" element={<EventsPage />} />
